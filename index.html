@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Smart Shelf — discover, organize and track your reading journey." />
     <title>Smart Shelf</title>
+    <script>
+      // Apply the saved theme before first paint
+      try { document.documentElement.classList.add(localStorage.getItem("theme") || "dark") }
+      catch { document.documentElement.classList.add("dark") }
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,5 +1,3 @@
-import Header from '@/components/Header.jsx'
-import Footer from '@/components/Footer.jsx'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,9 +8,7 @@ import {FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 
 function AboutPage() {
   return (
-    <div className='overflow-x-hidden min-h-screen'>
-      <Header />
-
+    <>
       <div
         className="relative w-full  h-65 md:h-80  bg-cover bg-center"
         style={{ backgroundImage: `url(${ShelfBg})` }}
@@ -60,24 +56,15 @@ function AboutPage() {
               API integration, and what it actually takes to ship something that feels good to use.
             </p>
             <div className="flex gap-2 flex-wrap">
-              <a href="https://github.com/pedroparisii" target="_blank" rel="noreferrer">
-                <Button variant="outline" size="sm" className="gap-2">
-                   <FaGithub/>
-                   GitHub
-                </Button>
-              </a>
-              <a href="https://linkedin.com/in/pedroparisi" target="_blank" rel="noreferrer">
-                <Button variant="outline" size="sm" className="gap-2">
-                   <FaLinkedin/>
-                   LinkedIn
-                </Button>
-              </a>
-              <a href="https://instagram.com/pedroparisii" target="_blank" rel="noreferrer">
-                <Button variant="outline" size="sm" className="gap-2">
-                   <FaInstagram/>
-                   Instagram
-                </Button>
-              </a>
+              <Button variant="outline" size="sm" className="gap-2" asChild>
+                <a href="https://github.com/pedroparisii" target="_blank" rel="noreferrer"><FaGithub/> GitHub</a>
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2" asChild>
+                <a href="https://linkedin.com/in/pedroparisi" target="_blank" rel="noreferrer"><FaLinkedin/> LinkedIn</a>
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2" asChild>
+                <a href="https://instagram.com/pedroparisii" target="_blank" rel="noreferrer"><FaInstagram/> Instagram</a>
+              </Button>
             </div>
           </div>
 
@@ -87,18 +74,14 @@ function AboutPage() {
             <p className="text-sm text-muted-foreground leading-relaxed">
               Smart Shelf is open source. Browse the code, open an issue, or just leave a star if you like what you see.
             </p>
-            <a href="https://github.com/pedroparisii/smart-shelf" target="_blank" rel="noreferrer">
-              <Button className="gap-2 w-fit">
-                <ExternalLink className="h-4 w-4" /> View on GitHub
-              </Button>
-            </a>
+            <Button className="gap-2 w-fit" asChild>
+              <a href="https://github.com/pedroparisii/smart-shelf" target="_blank" rel="noreferrer"><ExternalLink className="h-4 w-4" /> View on GitHub</a>
+            </Button>
           </div>
         </div>
 
       </div>
-
-      <Footer />
-    </div>
+    </>
   )
 }
 

@@ -1,6 +1,6 @@
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
-import { useRef } from "react"
+import { useState } from "react"
 import { Star } from "lucide-react"
 import { Link } from "react-router"
 
@@ -18,14 +18,14 @@ const featuredBooks = [
 ]
 
 function HeroCarousel() {
-  const plugin = useRef(Autoplay({ delay: 2500, stopOnInteraction: true }))
+  const [autoplay] = useState(() => Autoplay({ delay: 2500, stopOnInteraction: true }))
 
   return (
       <div className="relative w-full">
         <div className="absolute left-0 top-12 h-full w-16 bg-linear-to-r from-background to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-12 h-full w-16 bg-linear-to-l from-background to-transparent z-10 pointer-events-none" />
         <Carousel
-          plugins={[plugin.current]}
+          plugins={[autoplay]}
           opts={{ align: "center", loop: true }}
           className="w-full max-w-full pt-12"
         >
@@ -34,7 +34,7 @@ function HeroCarousel() {
               <CarouselItem key={book.title} className="pl-2 basis-50 lg:basis-60 ">
                 <Link to={`/book/${book.openlibraryId}`}>
                 <div className="relative w-full h-80 rounded-2xl overflow-hidden shadow-lg ">
-                  <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />
+                  <img src={book.cover} alt={book.title} loading="lazy" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
 
                   <div className="absolute top-3 left-3 right-3 flex justify-between items-start">

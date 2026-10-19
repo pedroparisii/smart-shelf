@@ -8,16 +8,7 @@ import {
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
   Search, User, X, SlidersHorizontal
 } from "lucide-react"
-
-const CATEGORY_LABELS = {
-  fiction: "Fiction",
-  romance: "Romance",
-  terror: "Horror",
-  fantasy: "Fantasy",
-  nonfiction: "Non-Fiction",
-  biography: "Biography",
-  technology: "Technology",
-}
+import { GENRES, genreByKey } from "@/lib/genres"
 
 const ORDER_LABELS = {
   relevance: "Relevance",
@@ -32,7 +23,7 @@ export function BookSearch({ filters, onFilterChange, onSearchSubmit }) {
   if (filters.category) {
     activeChips.push({
       key: "category",
-      label: CATEGORY_LABELS[filters.category] ?? filters.category,
+      label: genreByKey(filters.category)?.label ?? filters.category,
     })
   }
   if (filters.author?.trim()) {
@@ -95,19 +86,13 @@ export function BookSearch({ filters, onFilterChange, onSearchSubmit }) {
           value={filters.category}
           onValueChange={(v) => onFilterChange("category", v)}
         >
-          <SelectTrigger className="w-34 h-9">
+          <SelectTrigger className="w-40 h-9">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectLabel>Category</SelectLabel>
-              <SelectItem value="fiction">Fiction</SelectItem>
-              <SelectItem value="romance">Romance</SelectItem>
-              <SelectItem value="terror">Horror</SelectItem>
-              <SelectItem value="fantasy">Fantasy</SelectItem>
-              <SelectItem value="nonfiction">Non-Fiction</SelectItem>
-              <SelectItem value="biography">Biography</SelectItem>
-              <SelectItem value="technology">Technology</SelectItem>
+              {GENRES.map((g) => <SelectItem key={g.key} value={g.key}>{g.label}</SelectItem>)}
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -212,14 +197,14 @@ export function BooksPagination({ pagination }) {
 
       <div className="flex items-center gap-1">
         <Button
-          variant="outline" size="icon"
+          variant="outline" size="icon" aria-label="First page"
           disabled={page === 1}
           onClick={() => setPage(1)}
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
         <Button
-          variant="outline" size="icon"
+          variant="outline" size="icon" aria-label="Previous page"
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
         >
@@ -242,14 +227,14 @@ export function BooksPagination({ pagination }) {
         )}
 
         <Button
-          variant="outline" size="icon"
+          variant="outline" size="icon" aria-label="Next page"
           disabled={page === totalPages}
           onClick={() => setPage(page + 1)}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
         <Button
-          variant="outline" size="icon"
+          variant="outline" size="icon" aria-label="Last page"
           disabled={page === totalPages}
           onClick={() => setPage(totalPages)}
         >

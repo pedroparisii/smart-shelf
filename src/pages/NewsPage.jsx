@@ -1,5 +1,3 @@
-import Header from '@/components/Header.jsx'
-import Footer from '@/components/Footer.jsx'
 import { Separator } from '@/components/ui/separator'
 import NewsBg from '../assets/news.webp'
 import { Clock, BookOpen, Lightbulb, Newspaper } from 'lucide-react'
@@ -94,9 +92,7 @@ function NewsPage() {
   const rest = articles.filter(a => !a.featured)
 
   return (
-    <div className='overflow-x-hidden min-h-screen'>
-      <Header />
-
+    <>
       <div
         className="relative w-full h-65 md:h-80 bg-cover bg-center -z-10"
         style={{ backgroundImage: `url(${NewsBg})` }}
@@ -134,7 +130,7 @@ function NewsPage() {
                 <div className="flex items-center gap-2">
                   <Avatar>
                     <AvatarImage src="https://avatars.githubusercontent.com/u/95515067?v=4" alt="@pedroparsii" />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarFallback>PP</AvatarFallback>
                     <AvatarBadge className="bg-green-600" />
                   </Avatar>
                   <p className="text-muted-foreground">Pedro Parisi</p>
@@ -177,9 +173,7 @@ function NewsPage() {
         </div>
 
       </div>
-
-      <Footer />
-    </div>
+    </>
   )
 }
 

@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator"
-import { BookOpen,  Heart } from "lucide-react"
-import { FaGithub, FaTwitter } from "react-icons/fa"
+import { Heart } from "lucide-react"
+import { FaGithub } from "react-icons/fa"
 import Logo from "../assets/logo.png"
 import { Link } from "react-router"
 
