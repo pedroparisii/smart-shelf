@@ -147,12 +147,11 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-h1,h2 {
-  font-family: var(--font-serif);
-  user-select: none
-}
-
 @layer base {
+  h1, h2 {
+    font-family: var(--font-serif);
+    user-select: none;
+  }
   * {
     @apply border-border outline-ring/50;
   }
