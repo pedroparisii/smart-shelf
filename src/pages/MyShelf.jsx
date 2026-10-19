@@ -44,7 +44,7 @@ function MyShelf() {
     new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
   return (
-    <div className="px-6 md:px-16 lg:px-24 py-12 flex flex-col gap-10 mt-20 relative">
+    <div className="max-w-6xl mx-auto px-6 md:px-8 py-12 flex flex-col gap-10 mt-20">
 
       {/* Profile */}
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
@@ -64,7 +64,7 @@ function MyShelf() {
             </div>
           )}
         </div>
-        <div className="flex mt-2 gap-2 self-end right-30 md:absolute max-md:self-center">
+        <div className="flex mt-2 gap-2 md:ml-auto md:self-end max-md:self-center">
           <Button className="w-30" asChild>
             <Link to="/profile/edit">Edit Profile</Link>
           </Button>
@@ -132,7 +132,7 @@ function MyShelf() {
                     <p className="text-sm">No books here yet.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5 my-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 my-4">
                     {books.map((r) => <BookCard key={r.id} book={rowToBook(r)} />)}
                   </div>
                 )}
