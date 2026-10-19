@@ -1,48 +1,49 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 import '@/index.css'
 
-import Home from '@/pages/Home.jsx'
-import Login from '@/pages/Login.jsx'
-import Signup from '@/pages/Signup.jsx'
-import NotFoundPage from '@/pages/NotFoundPage.jsx'
-import BookPage from '@/pages/BookPage.jsx'
-import MyShelf from '@/pages/MyShelf.jsx'
-import SearchPage from '@/pages/SearchPage.jsx'
-import EditProfile from '@/pages/EditProfile.jsx'
-import AboutPage from '@/pages/AboutPage.jsx'
-import NewsPage from '@/pages/NewsPage.jsx'
-
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router'
-import { TooltipProvider } from '@/components/ui/tooltip'
 import { AuthProvider } from '@/hooks/useAuth'
-import ScrollToTop from '@/components/routing/ScrollToTop.jsx'
-import ProtectedRoute from '@/components/routing/ProtectedRoute.jsx'
-import PublicOnlyRoute from '@/components/routing/PublicOnlyRoute.jsx'
+import RootLayout from '@/components/routing/RootLayout.jsx'
+import AuthRoute from '@/components/routing/AuthRoute.jsx'
+import Home from '@/pages/Home.jsx'
 
-function RootLayout() {
-  return (
-    <>
-      <ScrollToTop />
-      <Outlet />
-    </>
-  )
-}
+const Login         = lazy(() => import('@/pages/Login.jsx'))
+const Signup        = lazy(() => import('@/pages/Signup.jsx'))
+const ResetPassword = lazy(() => import('@/pages/ResetPassword.jsx'))
+const BookPage      = lazy(() => import('@/pages/BookPage.jsx'))
+const SearchPage    = lazy(() => import('@/pages/SearchPage.jsx'))
+const MyShelf       = lazy(() => import('@/pages/MyShelf.jsx'))
+const EditProfile   = lazy(() => import('@/pages/EditProfile.jsx'))
+const NewsPage      = lazy(() => import('@/pages/NewsPage.jsx'))
+const AboutPage     = lazy(() => import('@/pages/AboutPage.jsx'))
+const NotFoundPage  = lazy(() => import('@/pages/NotFoundPage.jsx'))
 
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
     children: [
-      { path: "/", element: <Home/> },
-      { path: "/login", element: <PublicOnlyRoute><Login/></PublicOnlyRoute> },
-      { path: "/signup", element: <PublicOnlyRoute><Signup/></PublicOnlyRoute> },
-      { path: "/book/:id", element: <BookPage/> },
+      { path: "/", element: <Home /> },
+      { path: "/book/:id", element: <BookPage /> },
       { path: "/search", element: <SearchPage /> },
-      { path: "/shelf", element: <ProtectedRoute><MyShelf /></ProtectedRoute> },
-      { path: "/profile/edit", element: <ProtectedRoute><EditProfile /></ProtectedRoute> },
       { path: "/news", element: <NewsPage /> },
       { path: "/about", element: <AboutPage /> },
-      { path: "*", element: <NotFoundPage/> },
+      { path: "/reset-password", element: <ResetPassword /> },
+      {
+        element: <AuthRoute guestOnly />,
+        children: [
+          { path: "/login", element: <Login /> },
+          { path: "/signup", element: <Signup /> },
+        ],
+      },
+      {
+        element: <AuthRoute />,
+        children: [
+          { path: "/shelf", element: <MyShelf /> },
+          { path: "/profile/edit", element: <EditProfile /> },
+        ],
+      },
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
 ])
@@ -50,9 +51,7 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
-      <TooltipProvider>
-        <RouterProvider router={router} />
-      </TooltipProvider>
+      <RouterProvider router={router} />
     </AuthProvider>
   </StrictMode>,
 )

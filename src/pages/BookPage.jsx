@@ -1,94 +1,77 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
-import DOMPurify from 'dompurify'
-import Header from '@/components/Header.jsx'
-import Footer from '@/components/Footer.jsx'
+import { Link, useNavigate, useParams } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { Star, BookOpen, Bookmark, BookMarked, ChevronLeft, FileText, Globe, Hash, Building, Loader2, AlertCircle, Check } from 'lucide-react'
-import { Link } from 'react-router'
+import {
+  Dialog, DialogClose, DialogContent, DialogDescription,
+  DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from '@/components/ui/dialog'
+import { Star, BookOpen, Bookmark, BookMarked, ChevronLeft, FileText, Globe, Hash, Building, Loader2, AlertCircle, Check, Trash2 } from 'lucide-react'
+import PageLoader from '@/components/PageLoader.jsx'
 import { useBook } from '@/hooks/useBook'
-import { useUserBook } from '@/hooks/useUserBook'
+import { useShelf } from '@/hooks/useShelf'
 
 const statusOptions = [
-  { key: "reading", label: "Reading", icon: <BookOpen   className="h-4 w-4" /> },
-  { key: "read",    label: "Read",    icon: <BookMarked className="h-4 w-4" /> },
-  { key: "saved",   label: "Saved",   icon: <Bookmark   className="h-4 w-4" /> },
+  { key: "reading", label: "Reading", icon: BookOpen   },
+  { key: "read",    label: "Read",    icon: BookMarked },
+  { key: "saved",   label: "Saved",   icon: Bookmark   },
 ]
 
 function BookPage() {
   const { id } = useParams()
+  // Remount per book so the note draft never leaks between books
+  return <BookDetails key={id} id={id} />
+}
+
+function BookDetails({ id }) {
+  const navigate = useNavigate()
   const { book, loading, error } = useBook(id)
-  const { status, note: savedNote, saving, setStatus, saveNote } = useUserBook(id)
+  const { getRow, setStatus, remove, saveNote } = useShelf()
+  const row = getRow(id)
 
-  const [localNote, setLocalNote] = useState(null)
-  const noteValue   = localNote ?? savedNote
-  const noteDirty   = localNote !== null && localNote !== savedNote
-
-  function handleStatusClick(key) {
-    if (!book) return
-    setStatus(book, status === key ? null : key)
-  }
+  const [draft, setDraft]   = useState(null)
+  const [saving, setSaving] = useState(false)
+  const note      = draft ?? row?.note ?? ''
+  const noteDirty = draft !== null && draft !== (row?.note ?? '')
 
   async function handleSaveNote() {
-    await saveNote(noteValue)
-    setLocalNote(null)
+    setSaving(true)
+    if (await saveNote(row, note)) setDraft(null)
+    setSaving(false)
   }
 
-  // ── Loading ────────────────────────────────────────────────────────────────
-  if (loading) {
-    return (
-      <div className="overflow-x-hidden min-h-screen">
-        <Header />
-        <div className="flex items-center justify-center min-h-[80vh] gap-3 text-muted-foreground">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading book...</span>
-        </div>
-        <Footer />
-      </div>
-    )
-  }
+  if (loading) return <PageLoader />
 
-  // ── Error ──────────────────────────────────────────────────────────────────
   if (error || !book) {
     return (
-      <div className="overflow-x-hidden min-h-screen">
-        <Header />
-        <div className="flex flex-col items-center justify-center min-h-[80vh] gap-3 text-muted-foreground">
-          <AlertCircle className="h-8 w-8" />
-          <p className="text-sm">{error ?? "Book not found."}</p>
-          <Link to="/">
-            <Button variant="outline" className="gap-1.5">
-              <ChevronLeft className="h-4 w-4" /> Back to Home
-            </Button>
-          </Link>
-        </div>
-        <Footer />
+      <div className="flex flex-col items-center justify-center min-h-[80vh] gap-3 text-muted-foreground">
+        <AlertCircle className="h-8 w-8" />
+        <p className="text-sm">{error ?? "Book not found."}</p>
+        <Button variant="outline" className="gap-1.5" asChild>
+          <Link to="/"><ChevronLeft className="h-4 w-4" /> Back to Home</Link>
+        </Button>
       </div>
     )
   }
 
-  // ── Book page ──────────────────────────────────────────────────────────────
   const {
     title, authors, publisher, publishedYear, description,
     pageCount, genres, averageRating, ratingsCount, language, isbn, coverUrl,
   } = book
 
   return (
-    <div className='overflow-x-hidden min-h-screen'>
-      <Header />
-
+    <>
       <div
         className="relative w-full h-72 bg-cover bg-center mt-20"
-        style={{ backgroundImage: `url(${coverUrl})` }}
+        style={{ backgroundImage: coverUrl && `url(${coverUrl})` }}
       >
         <div className="absolute inset-0 backdrop-blur-2xl bg-background/60" />
         <div className="absolute inset-0 bg-linear-to-b from-transparent to-background" />
         <div className="relative z-10 px-6 md:px-16 lg:px-24 pt-6">
           <button
-            onClick={() => window.history.back()}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -102,25 +85,27 @@ function BookPage() {
 
           <div className="shrink-0 flex sm:flex-col items-center max-sm:justify-center max-sm:-mt-8 lg:items-start gap-4">
             <img
-              src={coverUrl}
+              src={coverUrl ?? "/cover-placeholder.svg"}
               alt={title}
               className="w-57 rounded-xl shadow-2xl object-cover"
             />
             <div className="flex flex-col gap-2 sm:w-full">
-              {statusOptions.map((s) => (
-                <Button
-                  key={s.key}
-                  variant={status === s.key ? "default" : "outline"}
-                  className="w-full gap-2 justify-start max-sm:h-24 max-sm:flex-col max-sm:justify-center"
-                  onClick={() => handleStatusClick(s.key)}
-                >
-                  {status === s.key
-                    ? <Check className="h-4 w-4" />
-                    : s.icon
-                  }
-                  {s.label}
-                </Button>
-              ))}
+              {statusOptions.map(({ key, label, icon: Icon }) => {
+                const active = row?.status === key
+                return (
+                  <Button
+                    key={key}
+                    variant={active ? "default" : "outline"}
+                    aria-pressed={active}
+                    className="w-full gap-2 justify-start max-sm:h-24 max-sm:flex-col max-sm:justify-center"
+                    onClick={() => !active && setStatus(book, key)}
+                  >
+                    {active ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                    {label}
+                  </Button>
+                )
+              })}
+              {row && <RemoveButton hasNote={!!row.note?.trim()} onConfirm={() => remove(row)} />}
             </div>
           </div>
 
@@ -163,10 +148,7 @@ function BookPage() {
               <>
                 <div className="flex flex-col gap-2">
                   <h2 className="text-lg font-semibold">About</h2>
-                  <div
-                    className="text-muted-foreground leading-relaxed text-sm [&_b]:font-semibold [&_i]:italic [&_br]:block [&_br]:mb-2"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }}
-                  />
+                  <p className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line">{description}</p>
                 </div>
                 <Separator />
               </>
@@ -176,19 +158,19 @@ function BookPage() {
               <h2 className="text-lg font-semibold">Details</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                  { icon: <FileText  className="h-4 w-4" />, label: "Pages",     value: pageCount  },
-                  { icon: <Globe     className="h-4 w-4" />, label: "Language",  value: language?.toUpperCase() },
-                  { icon: <Hash      className="h-4 w-4" />, label: "ISBN",      value: isbn       },
-                  { icon: <Building  className="h-4 w-4" />, label: "Publisher", value: publisher  },
+                  { icon: FileText, label: "Pages",     value: pageCount  },
+                  { icon: Globe,    label: "Language",  value: language?.toUpperCase() },
+                  { icon: Hash,     label: "ISBN",      value: isbn       },
+                  { icon: Building, label: "Publisher", value: publisher  },
                 ]
                   .filter((d) => d.value)
-                  .map((detail) => (
-                    <div key={detail.label} className="flex flex-col gap-1 p-4 rounded-xl bg-card border border-border">
+                  .map(({ icon: Icon, label, value }) => (
+                    <div key={label} className="flex flex-col gap-1 p-4 rounded-xl bg-card border border-border">
                       <div className="flex items-center gap-1.5 text-muted-foreground">
-                        {detail.icon}
-                        <span className="text-xs">{detail.label}</span>
+                        <Icon className="h-4 w-4" />
+                        <span className="text-xs">{label}</span>
                       </div>
-                      <span className="text-sm font-medium truncate">{detail.value}</span>
+                      <span className="text-sm font-medium truncate">{value}</span>
                     </div>
                   ))}
               </div>
@@ -201,20 +183,16 @@ function BookPage() {
               <Textarea
                 placeholder="Write your thoughts, quotes or anything about this book..."
                 className="min-h-32 resize-none"
-                value={noteValue}
-                onChange={(e) => setLocalNote(e.target.value)}
+                value={note}
+                onChange={(e) => setDraft(e.target.value)}
               />
-              <Button
-                className="w-fit"
-                disabled={!noteDirty || saving || !status}
-                onClick={handleSaveNote}
-              >
+              <Button className="w-fit" disabled={!noteDirty || saving || !row} onClick={handleSaveNote}>
                 {saving
                   ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving…</>
                   : "Save note"
                 }
               </Button>
-              {!status && (
+              {!row && (
                 <p className="text-xs text-muted-foreground">Add this book to your shelf first to save notes.</p>
               )}
             </div>
@@ -222,9 +200,33 @@ function BookPage() {
           </div>
         </div>
       </div>
+    </>
+  )
+}
 
-      <Footer />
-    </div>
+function RemoveButton({ hasNote, onConfirm }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" className="w-full gap-2 justify-start text-muted-foreground hover:text-destructive">
+          <Trash2 className="h-4 w-4" /> Remove from shelf
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Remove from shelf?</DialogTitle>
+          <DialogDescription>
+            {hasNote
+              ? "Your note for this book will be deleted too. This can't be undone."
+              : "You can add it back anytime."}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <DialogClose asChild><Button variant="destructive" onClick={onConfirm}>Remove</Button></DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

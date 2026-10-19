@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "react-router"
 import { searchBooks } from "@/lib/openLibrary"
 
@@ -35,18 +35,18 @@ export function useBookSearch(initialPerPage = DEFAULT_PER_PAGE) {
   // The text input is "draft" state — it only hits the URL on submit
   const [searchDraft, setSearchDraft] = useState(filters.search)
 
-  const [books, setBooks] = useState([])
-  const [totalItems, setTotalItems] = useState(0)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const genRef = useRef(0)
-  const totalPages = Math.max(1, Math.ceil(totalItems / perPage))
-
   // Keep the draft in sync if the URL changes externally (back button, etc.)
-  useEffect(() => {
+  const [syncedSearch, setSyncedSearch] = useState(filters.search)
+  if (syncedSearch !== filters.search) {
+    setSyncedSearch(filters.search)
     setSearchDraft(filters.search)
-  }, [filters.search])
+  }
+
+  // Results are tagged with the query they belong to; a mismatch means loading
+  const queryKey = searchParams.toString()
+  const [result, setResult] = useState({ key: null, books: [], totalItems: 0, error: null })
+  const loading    = result.key !== queryKey
+  const totalPages = Math.max(1, Math.ceil(result.totalItems / perPage))
 
   /**
    * Writes a partial state update to the URL.
@@ -101,38 +101,20 @@ export function useBookSearch(initialPerPage = DEFAULT_PER_PAGE) {
   // ── Fetch whenever the URL-derived state changes ───────────────────────
 
   useEffect(() => {
-    const gen = ++genRef.current
-    setLoading(true)
-    setError(null)
-
-    searchBooks({
-      search: filters.search,
-      category: filters.category,
-      author: filters.author,
-      orderBy: filters.orderBy,
-      page,
-      perPage,
-    })
-      .then(({ books: result, totalItems: total }) => {
-        if (genRef.current !== gen) return
-        setBooks(result)
-        setTotalItems(total)
-      })
-      .catch((err) => {
-        if (genRef.current !== gen) return
-        setError(err.message ?? "Failed to fetch books.")
-        setBooks([])
-        setTotalItems(0)
-      })
-      .finally(() => {
-        if (genRef.current === gen) setLoading(false)
-      })
-  }, [filters.search, filters.category, filters.author, filters.orderBy, page, perPage])
+    let cancelled = false
+    searchBooks({ ...filters, page, perPage })
+      .then((r) => ({ ...r, error: null }))
+      .catch((err) => ({ books: [], totalItems: 0, error: err.message ?? "Failed to fetch books." }))
+      .then((r) => { if (!cancelled) setResult({ key: queryKey, ...r }) })
+    return () => { cancelled = true }
+    // queryKey captures every input of the search
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryKey])
 
   return {
-    books,
+    books: loading ? [] : result.books,
     loading,
-    error,
+    error: loading ? null : result.error,
 
     // filters.search reflects the COMMITTED search (in URL);
     // searchDraft is what the input shows while typing
@@ -144,7 +126,7 @@ export function useBookSearch(initialPerPage = DEFAULT_PER_PAGE) {
       page,
       perPage,
       totalPages,
-      totalItems,
+      totalItems: result.totalItems,
       setPage,
       setPerPage,
     },

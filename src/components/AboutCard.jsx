@@ -17,11 +17,9 @@ function AboutCard() {
               No social pressure, no follower counts. Just you and your books.
               A private, organized, and beautiful record of your entire reading journey.
             </p>
-            <Link to="/">
-              <Button variant="outline" className="gap-2 w-fit">
-                <BookOpen className="h-4 w-4" /> Explore the app
-              </Button>
-            </Link>
+            <Button variant="outline" className="gap-2 w-fit" asChild>
+              <Link to="/"><BookOpen className="h-4 w-4" /> Explore the app</Link>
+            </Button>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -29,7 +27,7 @@ function AboutCard() {
                 <div className="text-contrast"><Search/></div>
                 <p className="font-semibold text-sm">Discover</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Search millions of books via <a className='text-contrast hover:underline' href='https://openlibrary.org/' target='_blank'>OpenLibrary API</a>
+                  Search millions of books via <a className='text-contrast hover:underline' href='https://openlibrary.org/' target='_blank' rel='noreferrer'>OpenLibrary API</a>
                 </p>
               </div>
               <div className="flex flex-col gap-2 p-5 rounded-xl border border-border bg-card">

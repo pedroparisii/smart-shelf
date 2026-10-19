@@ -43,13 +43,22 @@ Built to practice real-world frontend architecture, backend integration, API con
 
 ## Architecture
 
-The project follows a clean separation of concerns across three layers:
+- **`src/lib/`** — API clients and database queries (`openLibrary.js`, `userBooks.js`, `profile.js`, `auth.js`) plus shared constants (`genres.js`, `achievements.js`)
+- **`src/hooks/`** — state: `useAuth` (session), `useShelf` (the user's whole shelf, loaded once and shared by every screen), `useProfile`, `useBook`, `useBookSearch`
+- **`src/pages/`** + **`src/components/`** — UI; pages are lazy-loaded and share one layout (header, footer, toasts)
+- **`supabase/migrations/`** — database schema and Row Level Security policies
 
-- **`src/lib/`** — API clients and database queries (`openLibrary.js`, `userBooks.js`, `supabase.js`)
-- **`src/hooks/`** — all state logic (`useBookSearch`, `useAuth`, `useProfile`, `useUserBook`)
-- **`src/pages/`** + **`src/components/`** — UI only, no business logic
+Each shelf row stores a small snapshot of its book (title, authors, cover, genres), so the shelf, stats and achievements come from a single query and no table is shared between users. Search results are cached in memory to minimize API calls.
 
-Search results are cached in memory to minimize API calls. Book data is cached in Supabase to avoid repeated external requests when users load their shelf.
+## Running locally
+
+```bash
+cp .env.example .env   # fill in your Supabase URL and anon key
+npm install
+npm run dev
+```
+
+Apply the SQL in `supabase/migrations/` to your Supabase project (SQL editor or `supabase db push`).
 
 ## Development Notes
 

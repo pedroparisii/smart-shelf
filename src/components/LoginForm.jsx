@@ -1,15 +1,13 @@
 import { useState } from "react"
-import { useNavigate } from "react-router"
+import { Link, useNavigate } from "react-router"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import {
-  Field, FieldDescription, FieldGroup,
-  FieldLabel, FieldSeparator,
-} from "@/components/ui/field"
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import Books from '../assets/books.png'
-import { signInWithEmail } from "@/hooks/useAuth"
+import Books from '../assets/books.webp'
+import { signInWithEmail, sendPasswordReset } from "@/lib/auth"
 import { Loader2 } from "lucide-react"
 
 function LoginForm() {
@@ -31,6 +29,16 @@ function LoginForm() {
       setError(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleForgotPassword() {
+    if (!email) return setError("Enter your email above first.")
+    try {
+      await sendPasswordReset(email)
+      toast.success("Check your inbox for a password reset link.")
+    } catch (err) {
+      setError(err.message)
     }
   }
 
@@ -66,9 +74,9 @@ function LoginForm() {
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a href="#" className="ml-auto text-sm underline-offset-2 hover:underline">
+                  <button type="button" onClick={handleForgotPassword} className="ml-auto text-sm underline-offset-2 hover:underline">
                     Forgot your password?
-                  </a>
+                  </button>
                 </div>
                 <Input
                   id="password"
@@ -77,7 +85,6 @@ function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                
               </Field>
 
               <Field>
@@ -90,7 +97,7 @@ function LoginForm() {
               <Separator />
 
               <FieldDescription className="text-center">
-                Don't have an account? <a href="/signup">Sign up</a>
+                Don't have an account? <Link to="/signup">Sign up</Link>
               </FieldDescription>
             </FieldGroup>
           </form>
@@ -98,16 +105,12 @@ function LoginForm() {
           <div className="relative hidden bg-muted md:block">
             <img
               src={Books}
-              alt="Image"
+              alt=""
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2]"
             />
           </div>
         </CardContent>
       </Card>
-      <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </FieldDescription>
     </div>
   )
 }
