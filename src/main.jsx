@@ -16,6 +16,7 @@ const SearchPage    = lazy(() => import('@/pages/SearchPage.jsx'))
 const MyShelf       = lazy(() => import('@/pages/MyShelf.jsx'))
 const EditProfile   = lazy(() => import('@/pages/EditProfile.jsx'))
 const NewsPage      = lazy(() => import('@/pages/NewsPage.jsx'))
+const ArticlePage   = lazy(() => import('@/pages/ArticlePage.jsx'))
 const AboutPage     = lazy(() => import('@/pages/AboutPage.jsx'))
 const NotFoundPage  = lazy(() => import('@/pages/NotFoundPage.jsx'))
 
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
       { path: "/book/:id", element: <BookPage /> },
       { path: "/search", element: <SearchPage /> },
       { path: "/news", element: <NewsPage /> },
+      { path: "/news/:slug", element: <ArticlePage /> },
       { path: "/about", element: <AboutPage /> },
       { path: "/reset-password", element: <ResetPassword /> },
       {

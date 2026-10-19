@@ -17,9 +17,7 @@ function AboutPage() {
             <div className="absolute inset-0 bg-linear-to-b from-transparent to-background" />
       </div>
 
-      <div className="relative px-6 md:px-14 lg:px-32 -mt-32 pb-16">
-
-
+      <div className="relative max-w-6xl mx-auto px-6 md:px-8 -mt-32 pb-16">
         <div className="relative max-w-3xl">
           <Badge variant="secondary" className="mb-6 text-xs tracking-widest uppercase">About the Project</Badge>
           <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight mb-6">
@@ -33,7 +31,7 @@ function AboutPage() {
         </div>
       </div>
 
-      <div className="px-6 md:px-16 lg:px-32 pb-24 flex flex-col gap-20">
+      <div className="max-w-6xl mx-auto px-6 md:px-8 pb-24 flex flex-col gap-20">
 
         <Separator />
 
